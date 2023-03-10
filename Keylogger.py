@@ -1,5 +1,10 @@
 from tkinter import *
 import subprocess
+import socket
+from pynput.keyboard import Key, Controller
+from pynput import keyboard
+import json
+import threading
 
 WIDTH = 500 / 1.3
 HEIGHT = (600 / 1.3) + 100
@@ -66,11 +71,113 @@ def prepare_environment():
     set_defaults()
 
 
+def start_server(host, port):
+    server = Server(host=f'{host}', port=int(port))
+    server.start()
+
+
+def start_client(host, port):
+    client = Client(host=f'{host}', port=int(port))
+    client.start()
+
+
 def connect():
+    host = host_entry.get()
+    port = port_entry.get()
+    if host == "" or port == "" or not port.isdigit() or not 0 < int(port) < 65535:
+        logs_txt.insert(END, "Please enter a valid host and port.\n")
+        return
     if option_var.get() == "Server":
         logs_txt.insert(END, f"Starting server on {host_entry.get()}:{port_entry.get()}...\n")
+        server_thread = threading.Thread(target=start_server, args=(host, port))
+        server_thread.start()
     elif option_var.get() == "Client":
         logs_txt.insert(END, f"Connecting to server on {host_entry.get()}:{port_entry.get()}...\n")
+        client_thread = threading.Thread(target=start_client, args=(host, port))
+        client_thread.start()
+
+
+class Server:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.keyboard = Controller()
+
+    def start(self):
+        # Set up the network connection
+        self.s.bind((self.host, self.port))
+        self.s.listen(1)
+        conn, addr = self.s.accept()
+
+        # Receive the keypresses from the client
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            try:
+                json_data = data.decode()
+                # print(json_data)
+                keypresses = json.loads(json_data)
+                the_key = keypresses[0]['key']
+                the_action = keypresses[0]['action']
+                if the_key.split(".")[0] == "Key":
+                    key_obj = getattr(Key, the_key.split(".")[1])
+                    if the_action == "pressed":
+                        self.keyboard.press(key_obj)
+                    elif the_action == "released":
+                        self.keyboard.release(key_obj)
+                else:
+                    if the_action == "pressed":
+                        self.keyboard.press(the_key)
+                    elif the_action == "released":
+                        self.keyboard.release(the_key)
+            except:
+                pass
+
+        # Close the network connection when done
+        conn.close()
+        self.s.close()
+
+
+class Client:
+    def __init__(self, host, port):
+        self.keypresses = []
+        self.host = host
+        self.port = port
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect((host, port))
+
+    # Send buffered keypress data to the server
+    def send_buffer(self):
+        if len(self.keypresses) > 0:
+            json_data = json.dumps(self.keypresses)
+            self.s.sendall(json_data.encode())
+            self.keypresses.clear()
+
+    # Add keypress data to the buffer
+    def on_press(self, event):
+        try:
+            key = event.char
+        except:
+            key = event
+        data = {'key': f'{key}', 'action': 'pressed'}
+        self.keypresses.append(data)
+        self.send_buffer()
+
+    def on_release(self, event):
+        try:
+            key = event.char
+        except:
+            key = event
+        data = {'key': f'{key}', 'action': 'released'}
+        self.keypresses.append(data)
+        self.send_buffer()
+
+    # Start the listener
+    def start(self):
+        with keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:
+            listener.join()
 
 
 ####################FUNCTIONS####################
