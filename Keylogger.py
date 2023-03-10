@@ -88,21 +88,34 @@ def connect():
         logs_txt.insert(END, "Please enter a valid host and port.\n")
         return
     if option_var.get() == "Server":
-        logs_txt.insert(END, f"Starting server on {host_entry.get()}:{port_entry.get()}...\n")
-        server_thread = threading.Thread(target=start_server, args=(host, port))
-        server_thread.start()
+        if not connect.is_connected:
+            logs_txt.insert(END, f"Starting server on {host_entry.get()}:{port_entry.get()}...\n")
+            server_thread = threading.Thread(target=start_server, args=(host, port))
+            server_thread.start()
+        else:
+            logs_txt.insert(END, "Server is already running.\n")
     elif option_var.get() == "Client":
-        logs_txt.insert(END, f"Connecting to server on {host_entry.get()}:{port_entry.get()}...\n")
-        client_thread = threading.Thread(target=start_client, args=(host, port))
-        client_thread.start()
+        if not connect.is_connected:
+            logs_txt.insert(END, f"Connecting to server on {host_entry.get()}:{port_entry.get()}...\n")
+            client_thread = threading.Thread(target=start_client, args=(host, port))
+            client_thread.start()
+        else:
+            logs_txt.insert(END, "Client is already connected to the server.\n")
 
 
 class Server:
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.keyboard = Controller()
+        try:
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.keyboard = Controller()
+            logs_txt.insert(END, "Server started successfully.\n")
+            start_server_btn.config(text="Disconnect", bg="red")
+            connect.is_connected = True
+        except:
+            logs_txt.insert(END, "Error Starting the server.\n")
+            connect.is_connected = False
 
     def start(self):
         # Set up the network connection
@@ -145,8 +158,15 @@ class Client:
         self.keypresses = []
         self.host = host
         self.port = port
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((host, port))
+        try:
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.s.connect((host, port))
+            logs_txt.insert(END, "Connected to the server successfully.\n")
+            start_server_btn.config(text="Disconnect", bg="red")
+            connect.is_connected = True
+        except:
+            logs_txt.insert(END, "Error connecting to the server.\n")
+            connect.is_connected = False
 
     # Send buffered keypress data to the server
     def send_buffer(self):
@@ -184,6 +204,8 @@ class Client:
 
 prepare_environment.check = False
 selected_option = None
+connect.is_connected = False
+
 option_var = StringVar(value="Server")
 
 group_box = LabelFrame(root, text="Login", font=("Arial", 12))
