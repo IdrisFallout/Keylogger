@@ -136,7 +136,7 @@ class Server:
             try:
                 for message in messages[:-1]:
                     self.json_data = json.loads(message.decode())
-                print(self.json_data)
+                # print(self.json_data)
 
                 self.buffer = messages[-1]
 
@@ -146,18 +146,18 @@ class Server:
                 if the_key.split(".")[0] == "Key":
                     key_obj = getattr(Key, the_key.split(".")[1])
                     if the_action == "pressed":
-                        pass
-                        # self.keyboard.press(key_obj)
+                        # pass
+                        self.keyboard.press(key_obj)
                     elif the_action == "released":
-                        pass
-                        # self.keyboard.release(key_obj)
+                        # pass
+                        self.keyboard.release(key_obj)
                 else:
                     if the_action == "pressed":
-                        pass
-                        # self.keyboard.press(the_key)
+                        # pass
+                        self.keyboard.press(the_key)
                     elif the_action == "released":
-                        pass
-                        # self.keyboard.release(the_key)
+                        # pass
+                        self.keyboard.release(the_key)
             except Exception as e:
                 logs_txt.insert(END, f"Error: {e}\n")
 
@@ -169,7 +169,6 @@ class Server:
 class Client:
     def __init__(self, host, port):
         self.keypresses = []
-        self.buffer = ["", ""]
         self.index = 0
         self.host = host
         self.port = port
@@ -185,16 +184,7 @@ class Client:
 
     # Send buffered keypress data to the server
     def send_buffer(self):
-        # if self.index == 0:
-        #     self.buffer[self.index] = str(self.keypresses)
-        #     self.index = 1
-        # elif self.index == 1:
-        #     self.buffer[self.index] = str(self.keypresses)
-        #     self.index = 0
-        # if self.buffer[0] == self.buffer[1]:
-        #     self.keypresses.clear()
-        #     return
-        print(self.keypresses)
+        # print(self.keypresses)
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
             self.s.send(json_data.encode() + b'\n')
