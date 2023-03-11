@@ -160,6 +160,8 @@ class Server:
 class Client:
     def __init__(self, host, port):
         self.keypresses = []
+        self.buffer = []
+        self.index = 0
         self.host = host
         self.port = port
         try:
@@ -174,6 +176,15 @@ class Client:
 
     # Send buffered keypress data to the server
     def send_buffer(self):
+        if self.index == 0:
+            self.buffer[0] = self.keypresses
+            self.index = 1
+        elif self.index == 1:
+            self.buffer[1] = self.keypresses
+            self.index = 0
+        if self.buffer[0] == self.buffer[1]:
+            return
+        self.buffer[0] = self.keypresses
         print(self.keypresses)
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
