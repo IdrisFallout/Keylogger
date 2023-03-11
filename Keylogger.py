@@ -176,6 +176,7 @@ class Client:
     def send_buffer(self):
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
+            print(json_data.encode())
             self.s.sendall(json_data.encode())
             self.keypresses.clear()
 
