@@ -137,18 +137,18 @@ class Server:
                 if the_key.split(".")[0] == "Key":
                     key_obj = getattr(Key, the_key.split(".")[1])
                     if the_action == "pressed":
-                        # pass
-                        self.keyboard.press(key_obj)
+                        pass
+                        # self.keyboard.press(key_obj)
                     elif the_action == "released":
-                        # pass
-                        self.keyboard.release(key_obj)
+                        pass
+                        # self.keyboard.release(key_obj)
                 else:
                     if the_action == "pressed":
-                        # pass
-                        self.keyboard.press(the_key)
+                        pass
+                        # self.keyboard.press(the_key)
                     elif the_action == "released":
-                        # pass
-                        self.keyboard.release(the_key)
+                        pass
+                        # self.keyboard.release(the_key)
             except Exception as e:
                 logs_txt.insert(END, f"Error: {e}\n")
 
