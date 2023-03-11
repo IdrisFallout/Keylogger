@@ -174,9 +174,9 @@ class Client:
 
     # Send buffered keypress data to the server
     def send_buffer(self):
+        print(self.keypresses)
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
-            print(json_data.encode())
             self.s.sendall(json_data.encode())
             self.keypresses.clear()
 
