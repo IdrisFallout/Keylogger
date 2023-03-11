@@ -130,7 +130,7 @@ class Server:
                 break
             try:
                 json_data = data.decode()
-                # print(json_data)
+                print(json_data)
                 keypresses = json.loads(json_data)
                 the_key = keypresses[0]['key']
                 the_action = keypresses[0]['action']
