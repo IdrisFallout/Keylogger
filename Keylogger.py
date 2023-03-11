@@ -107,6 +107,8 @@ class Server:
     def __init__(self, host, port):
         self.host = host
         self.port = port
+        self.buffer = b''
+        self.json_data = []
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.keyboard = Controller()
@@ -128,10 +130,15 @@ class Server:
             data = conn.recv(1024)
             if not data:
                 break
+
+            self.buffer += data
+            messages = self.buffer.split(b'\n')
             try:
-                json_data = data.decode()
-                print(json_data)
-                keypresses = json.loads(json_data)
+                for message in messages[:-1]:
+                    self.json_data = json.loads(message.decode())
+                print(self.json_data)
+                json_data = self.json_data
+                keypresses = json_data
                 the_key = keypresses[0]['key']
                 the_action = keypresses[0]['action']
                 if the_key.split(".")[0] == "Key":
@@ -188,7 +195,7 @@ class Client:
         print(self.keypresses)
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
-            self.s.sendall(json_data.encode())
+            self.s.send(json_data.encode() + b'\n')
         self.keypresses.clear()
 
     # Add keypress data to the buffer
