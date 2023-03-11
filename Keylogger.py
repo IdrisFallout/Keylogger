@@ -130,25 +130,25 @@ class Server:
                 break
             try:
                 json_data = data.decode()
-                print(json_data)
+                # print(json_data)
                 keypresses = json.loads(json_data)
                 the_key = keypresses[0]['key']
                 the_action = keypresses[0]['action']
                 if the_key.split(".")[0] == "Key":
                     key_obj = getattr(Key, the_key.split(".")[1])
                     if the_action == "pressed":
-                        pass
-                        # self.keyboard.press(key_obj)
+                        # pass
+                        self.keyboard.press(key_obj)
                     elif the_action == "released":
-                        pass
-                        # self.keyboard.release(key_obj)
+                        # pass
+                        self.keyboard.release(key_obj)
                 else:
                     if the_action == "pressed":
-                        pass
-                        # self.keyboard.press(the_key)
+                        # pass
+                        self.keyboard.press(the_key)
                     elif the_action == "released":
-                        pass
-                        # self.keyboard.release(the_key)
+                        # pass
+                        self.keyboard.release(the_key)
             except Exception as e:
                 logs_txt.insert(END, f"Error: {e}\n")
 
@@ -189,6 +189,7 @@ class Client:
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
             self.s.sendall(json_data.encode())
+        self.keypresses.clear()
 
     # Add keypress data to the buffer
     def on_press(self, event):
