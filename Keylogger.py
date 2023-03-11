@@ -137,8 +137,10 @@ class Server:
                 for message in messages[:-1]:
                     self.json_data = json.loads(message.decode())
                 print(self.json_data)
-                json_data = self.json_data
-                keypresses = json_data
+
+                self.buffer = messages[-1]
+
+                keypresses = self.json_data
                 the_key = keypresses[0]['key']
                 the_action = keypresses[0]['action']
                 if the_key.split(".")[0] == "Key":
@@ -183,15 +185,15 @@ class Client:
 
     # Send buffered keypress data to the server
     def send_buffer(self):
-        if self.index == 0:
-            self.buffer[self.index] = str(self.keypresses)
-            self.index = 1
-        elif self.index == 1:
-            self.buffer[self.index] = str(self.keypresses)
-            self.index = 0
-        if self.buffer[0] == self.buffer[1]:
-            self.keypresses.clear()
-            return
+        # if self.index == 0:
+        #     self.buffer[self.index] = str(self.keypresses)
+        #     self.index = 1
+        # elif self.index == 1:
+        #     self.buffer[self.index] = str(self.keypresses)
+        #     self.index = 0
+        # if self.buffer[0] == self.buffer[1]:
+        #     self.keypresses.clear()
+        #     return
         print(self.keypresses)
         if len(self.keypresses) > 0:
             json_data = json.dumps(self.keypresses)
