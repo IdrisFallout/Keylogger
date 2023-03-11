@@ -46,7 +46,7 @@ def set_defaults():
 
     elif option_var.get() == "Client":
         host_entry.config(state=NORMAL)
-        ip_lbl.config(text=f"Use one of these IP(s) on the other computer: ")
+        ip_lbl.config(text=f"Check the other computer for IP")
         start_server_btn.config(text="Connect to Server")
 
 
@@ -130,23 +130,27 @@ class Server:
                 break
             try:
                 json_data = data.decode()
-                # print(json_data)
+                print(json_data)
                 keypresses = json.loads(json_data)
                 the_key = keypresses[0]['key']
                 the_action = keypresses[0]['action']
                 if the_key.split(".")[0] == "Key":
                     key_obj = getattr(Key, the_key.split(".")[1])
                     if the_action == "pressed":
-                        self.keyboard.press(key_obj)
+                        pass
+                        # self.keyboard.press(key_obj)
                     elif the_action == "released":
-                        self.keyboard.release(key_obj)
+                        pass
+                        # self.keyboard.release(key_obj)
                 else:
                     if the_action == "pressed":
-                        self.keyboard.press(the_key)
+                        pass
+                        # self.keyboard.press(the_key)
                     elif the_action == "released":
-                        self.keyboard.release(the_key)
-            except:
-                pass
+                        pass
+                        # self.keyboard.release(the_key)
+            except Exception as e:
+                logs_txt.insert(END, f"Error: {e}\n")
 
         # Close the network connection when done
         conn.close()
